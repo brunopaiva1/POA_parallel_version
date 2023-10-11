@@ -7,10 +7,11 @@
 
 using namespace std;
 
-void initializeSource(float *s, float f, float dt, int nt) {
+void initializeSource(float *s, float f, float dt, int nt, int thread_count) {
     float t;
     float pi = 3.14;
-
+#   pragma omp parallel for num_threads(thread_count)\
+    default(none) shared(s, pi, f, dt, nt) private(t)
     for (int i = 0; i < nt; i++){
         t = i * dt;
         s[i] = (1 - 2 * pi * pi * f * f * t * t) * exp(-pi * pi * f * f * t * t);
@@ -19,7 +20,7 @@ void initializeSource(float *s, float f, float dt, int nt) {
 }
 
 void propagateWave(float *s, float c, float dx, float dy, float dz, float dt,
-                    int nx, int ny, int nz, int nt, int xs, int ys, int zs) {
+                    int nx, int ny, int nz, int nt, int xs, int ys, int zs, int thread_count) {
     
     float dEx, dEy, dEz;
     float *uAnterior = (float*) malloc(nx * ny * nz * sizeof(float));
@@ -30,7 +31,10 @@ void propagateWave(float *s, float c, float dx, float dy, float dz, float dt,
     memset(uAnterior, 0, nx * ny * nz * sizeof(float));
     memset(uProximo, 0, nx * ny * nz * sizeof(float));
 
+
     for (int t = 0; t < nt; t++) {
+#       pragma omp parallel for num_threads(thread_count)\
+        default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, uAnterior, uProximo, c, xs, ys, zs, s) private(dEx, dEy, dEz)
         for (int idx = 0; idx < (nx - 4) * (ny - 4) * (nz - 4); idx++) {
             int x = 2 + idx / ((ny - 4) * (nz - 4));
             int y = 2 + (idx / (nz - 4)) % (ny - 4);
@@ -74,27 +78,28 @@ void propagateWave(float *s, float c, float dx, float dy, float dz, float dt,
 }
 
 int main(int argc, char* argv[]) {
-    clock_t start_t, end_t;
-    double total_t;
+    int thread_count;
     int xs = 15, ys = 15, zs = 15;
     float dx = 10, dy = 10, dz = 10;
     float dt = 0.001;
-    int nx = 20, ny = 20, nz = 20;
+    int nx = 40, ny = 40, nz = 40;
     int nt = 10000;
     float f = 10;
     float c = 1500.0;
+    double start, finish;
 
+    thread_count = strtol(argv[1], NULL, 10);
     float *s = (float *)malloc(nt * sizeof(float));
 
-    start_t = clock();
-    #ifdef DEBUG
-    initializeSource(s, f, dt, nt);
-    propagateWave(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs);
-    end_t = clock();
-    #endif
+    start = omp_get_wtime();
+
+    initializeSource(s, f, dt, nt, thread_count);
+    propagateWave(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs, thread_count);
+
+    finish = omp_get_wtime();
+    cout << "Tempo: " << finish - start <<endl ;
     free(s);
 
-    total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC;
-    cout << "O tempo de execução é: " << total_t << endl;
     return 0;
+
 }
