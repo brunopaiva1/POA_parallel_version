@@ -12,7 +12,7 @@ const double PI_SQUARE_FOUR = 4.0 * PI_SQUARE;
 const double PI_SQUARE_FIVE = 5.0 * PI_SQUARE;
 const double PI_SQUARE_TWELVE = 12.0 * PI_SQUARE;
 
-void generateSource(std::vector<float>& s, float f, float dt, int nt) {
+void generateSource(std::vector<float>& s, float f, float dt, int nt, int thread_count) {
     #pragma omp parallel for
     for (int i = 0; i < nt; i++) {
         float t = i * dt;
@@ -86,10 +86,12 @@ int main() {
     int nt = 10000;
     float f = 10;
     float c = 1500.0;
+    int thread_count;
 
+    thread_count = strtol(argv[1], NULL, 10);
     std::vector<float> s(nt);
 
-    generateSource(s, f, dt, nt);
+    generateSource(s, f, dt, nt, thread_count);
     wavePropagation(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs);
 
     auto end_time = std::chrono::high_resolution_clock::now();
