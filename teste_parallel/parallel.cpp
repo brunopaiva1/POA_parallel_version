@@ -77,7 +77,7 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
     
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     auto start_time = std::chrono::high_resolution_clock::now();
     int xs = 15, ys = 15, zs = 15;
     float dx = 10, dy = 10, dz = 10;
