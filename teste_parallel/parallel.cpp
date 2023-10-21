@@ -53,7 +53,7 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
     std::vector<float> u(nx * ny * nz, 0.0);
 
     for (int t = 0; t < nt; t++) {
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(thread_count)
         for (int idx = 0; idx < (nx - 4) * (ny - 4) * (nz - 4); idx++) {
             int x = 2 + idx / ((ny - 4) * (nz - 4));
             int y = 2 + (idx / (nz - 4)) % (ny - 4);
