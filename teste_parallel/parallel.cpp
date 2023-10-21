@@ -13,7 +13,7 @@ const double PI_SQUARE_FIVE = 5.0 * PI_SQUARE;
 const double PI_SQUARE_TWELVE = 12.0 * PI_SQUARE;
 
 void generateSource(std::vector<float>& s, float f, float dt, int nt, int thread_count) {
-    #pragma omp parallel for
+#   pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i < nt; i++) {
         float t = i * dt;
         s[i] = (1 - PI_SQUARE * f * f * t * t) * exp(-PI_SQUARE * f * f * t * t);
@@ -53,7 +53,7 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
     std::vector<float> u(nx * ny * nz, 0.0);
 
     for (int t = 0; t < nt; t++) {
-        #pragma omp parallel for num_threads(thread_count)
+#       pragma omp parallel for num_threads(thread_count)
         for (int idx = 0; idx < (nx - 4) * (ny - 4) * (nz - 4); idx++) {
             int x = 2 + idx / ((ny - 4) * (nz - 4));
             int y = 2 + (idx / (nz - 4)) % (ny - 4);
