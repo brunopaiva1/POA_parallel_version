@@ -53,6 +53,7 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
     std::vector<float> nextWavefield(nx * ny * nz, 0.0);
     std::vector<float> u(nx * ny * nz, 0.0);
     float dEx, dEy, dEz;
+    
 #   pragma omp parallel for num_threads(thread_count) \
     default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) \
     private(dEx, dEy, dEz) collapse(1) schedule(guided, 2)
