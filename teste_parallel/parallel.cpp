@@ -13,7 +13,8 @@ const double PI_SQUARE_FIVE = 5.0 * PI_SQUARE;
 const double PI_SQUARE_TWELVE = 12.0 * PI_SQUARE;
 
 void generateSource(std::vector<float>& s, float f, float dt, int nt, int thread_count) {
-#   pragma omp parallel for num_threads(thread_count)
+#   pragma omp parallel for num_threads(thread_count) \
+    default(none) shared(s, PI_SQUARE, f, dt, nt) private(t)
     for (int i = 0; i < nt; i++) {
         float t = i * dt;
         s[i] = (1 - PI_SQUARE * f * f * t * t) * exp(-PI_SQUARE * f * f * t * t);
@@ -26,8 +27,7 @@ float calculateDEx(const std::vector<float>& previousWavefield, int x, int y, in
                     (4.0/3.0)*previousWavefield[(x - 1) * ny * nz + y * nz + z] -
                     (5.0/2.0)*previousWavefield[x * ny * nz + y * nz + z] +
                     (4.0/3.0)*previousWavefield[(x + 1) * ny * nz + y * nz + z] -
-                    (1.0/12.0)*previousWavefield[(x + 2) * ny * nz + y * nz + z]) / (dx * dx);
-            
+                    (1.0/12.0)*previousWavefield[(x + 2) * ny * nz + y * nz + z]) / (dx * dx);        
 }
 
 float calculateDEy(const std::vector<float>& previousWavefield, int x, int y, int z, int ny, int nz, float dy) {
