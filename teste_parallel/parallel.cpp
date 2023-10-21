@@ -19,8 +19,7 @@ void generateSource(std::vector<float>& s, float f, float dt, int nt, int thread
     for (int i = 0; i < nt; i++) {
         t = i * dt;
         s[i] = (1 - PI_SQUARE * f * f * t * t) * exp(-PI_SQUARE * f * f * t * t);
-    }
-    
+    }    
 }
 
 float calculateDEx(const std::vector<float>& previousWavefield, int x, int y, int z, int ny, int nz, float dx) {
@@ -53,7 +52,7 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
     std::vector<float> nextWavefield(nx * ny * nz, 0.0);
     std::vector<float> u(nx * ny * nz, 0.0);
     float dEx, dEy, dEz;
-    
+
 #   pragma omp parallel for num_threads(thread_count) \
     default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) \
     private(dEx, dEy, dEz) collapse(1) schedule(guided, 2)
