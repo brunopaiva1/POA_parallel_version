@@ -54,7 +54,8 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
     std::vector<float> u(nx * ny * nz, 0.0);
     float dEx, dEy, dEz;
 #   pragma omp parallel for num_threads(thread_count) \
-    default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) private(dEx, dEy, dEz)
+    default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) \
+    private(dEx, dEy, dEz) collapse(1) schedule(guided, 2)
     for (int t = 0; t < nt; t++) {
         for (int idx = 0; idx < (nx - 4) * (ny - 4) * (nz - 4); idx++) {
             int x = 2 + idx / ((ny - 4) * (nz - 4));
@@ -71,7 +72,6 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
 
         nextWavefield[xs * ny * nz + ys * nz + zs] -= c * c * dt * dt * s[t];
 
-#       pragma omp single
         std::vector<float> temp = u;
         u = nextWavefield;
         nextWavefield = previousWavefield;
