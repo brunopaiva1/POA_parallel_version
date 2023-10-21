@@ -3,6 +3,8 @@
 #include <vector>
 #include <chrono>
 #include <cmath>
+#include <omp.h>
+
 #define M_PI 3.14159265358979323846
 
 const double PI_SQUARE = M_PI * M_PI;
@@ -11,6 +13,7 @@ const double PI_SQUARE_FIVE = 5.0 * PI_SQUARE;
 const double PI_SQUARE_TWELVE = 12.0 * PI_SQUARE;
 
 void generateSource(std::vector<float>& s, float f, float dt, int nt) {
+    #pragma omp parallel for
     for (int i = 0; i < nt; i++) {
         float t = i * dt;
         s[i] = (1 - PI_SQUARE * f * f * t * t) * exp(-PI_SQUARE * f * f * t * t);
