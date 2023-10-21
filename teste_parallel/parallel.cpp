@@ -47,7 +47,7 @@ float calculateDEz(const std::vector<float>& previousWavefield, int x, int y, in
 
 }
 void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float dz, float dt,
-                    int nx, int ny, int nz, int nt, int xs, int ys, int zs) {
+                    int nx, int ny, int nz, int nt, int xs, int ys, int zs, int thread_count) {
     std::vector<float> previousWavefield(nx * ny * nz, 0.0);
     std::vector<float> nextWavefield(nx * ny * nz, 0.0);
     std::vector<float> u(nx * ny * nz, 0.0);
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     std::vector<float> s(nt);
 
     generateSource(s, f, dt, nt, thread_count);
-    wavePropagation(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs);
+    wavePropagation(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs, thread_count);
 
     auto end_time = std::chrono::high_resolution_clock::now();
     double execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
