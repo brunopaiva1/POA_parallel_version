@@ -53,22 +53,27 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
     std::vector<float> u(nx * ny * nz, 0.0);
     float dEx, dEy, dEz;
 
-#   pragma omp parallel for num_threads(thread_count) \
-    default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) \
-    private(dEx, dEy, dEz) collapse(1) schedule(guided, 2)
     for (int t = 0; t < nt; t++) {
-        for (int idx = 0; idx < (nx - 4) * (ny - 4) * (nz - 4); idx++) {
-            int x = 2 + idx / ((ny - 4) * (nz - 4));
-            int y = 2 + (idx / (nz - 4)) % (ny - 4);
-            int z = 2 + idx % (nz - 4);
-
+#   pragma omp parallel for collapse(3) num_threads(thread_count) \
+    default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) \
+    private(dEx, dEy, dEz) schedule(dynamic, 20)
+        for (int x = 2; x < nx - 2; x++)
+        {
+            for (int y = 2; y < ny - 2; y++)
+            {
+                for (int z = 2; z < nz - 2; z++)
+                {
+                    
             dEx = calculateDEx(previousWavefield, x, y, z, ny, nz, dx);
             dEy = calculateDEy(previousWavefield, x, y, z, ny, nz, dy);
             dEz = calculateDEz(previousWavefield, x, y, z, ny, nz, dz);
 
 
-            nextWavefield[x * ny * nz + y * nz + z] = c * c * dt * dt * (dEx + dEy + dEz) - previousWavefield[x * ny * nz + y * nz + z] + 2 * u[x * ny * nz + y * nz + z];
+            nextWavefield[x * ny * nz + y * nz + z] = c * c * dt * dt * (dEx + dEy + dEz) -
+                         previousWavefield[x * ny * nz + y * nz + z] + 2 * u[x * ny * nz + y * nz + z];
+              }   
         }
+    }
 
         nextWavefield[xs * ny * nz + ys * nz + zs] -= c * c * dt * dt * s[t];
 
@@ -77,16 +82,14 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
         nextWavefield = previousWavefield;
         previousWavefield = temp;
            
-    }   
-
 }
-
+}
 int main(int argc, char* argv[]) {
     auto start_time = std::chrono::high_resolution_clock::now();
     int xs = 15, ys = 15, zs = 15;
     float dx = 10, dy = 10, dz = 10;
     float dt = 0.001;
-    int nx = 20, ny = 20, nz = 20;
+    int nx = 40, ny = 20, nz = 20;
     int nt = 10000;
     float f = 10;
     float c = 1500.0;
