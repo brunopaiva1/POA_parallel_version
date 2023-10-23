@@ -9,7 +9,7 @@
 
 echo $SLUM_JOB_NODELIST
 
-cd /scratch/pex1272-ufersa/bruno.silva4/teste1
+cd /scratch/pex1272-ufersa/bruno.silva4/teste
 
 module load gcc/9.3
 
