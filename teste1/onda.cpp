@@ -36,8 +36,7 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
 
     for (int t = 0; t < nt; t++) {
 #       pragma omp parallel for num_threads(thread_count)\
-        default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) \ 
-        private(dEx, dEy, dEz)
+        default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) private(dEx, dEy, dEz)
         for (int idx = 0; idx < (nx - 4) * (ny - 4) * (nz - 4); idx++) {
             int x = 2 + idx / ((ny - 4) * (nz - 4));
             int y = 2 + (idx / (nz - 4)) % (ny - 4);
@@ -85,7 +84,7 @@ int main(int argc, char* argv[]) {
     int xs = 15, ys = 15, zs = 15;
     float dx = 10, dy = 10, dz = 10;
     float dt = 0.001;
-    int nx = 40, ny = 20, nz = 20;
+    int nx = 20, ny = 20, nz = 20;
     int nt = 10000;
     float f = 10;
     float c = 1500.0;

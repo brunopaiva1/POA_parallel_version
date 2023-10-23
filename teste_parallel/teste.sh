@@ -15,4 +15,4 @@ module load gcc/9.3
 
 g++ -g -o teste.exe -fopenmp parallel.cpp
 
-./teste.exe 24
+./teste.exe 2
