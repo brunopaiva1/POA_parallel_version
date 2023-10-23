@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void initializeSource(float *s, float f, float dt, int nt, int thread_count) {
+void generateSource(float *s, float f, float dt, int nt, int thread_count) {
     float t;
     float pi = 3.14;
 #   pragma omp parallel for num_threads(thread_count)\
@@ -19,61 +19,61 @@ void initializeSource(float *s, float f, float dt, int nt, int thread_count) {
     
 }
 
-void propagateWave(float *s, float c, float dx, float dy, float dz, float dt,
+void wavePropagation(float *s, float c, float dx, float dy, float dz, float dt,
                     int nx, int ny, int nz, int nt, int xs, int ys, int zs, int thread_count) {
     
     float dEx, dEy, dEz;
-    float *uAnterior = (float*) malloc(nx * ny * nz * sizeof(float));
-    float *uProximo = (float*) malloc(nx * ny * nz * sizeof(float));
+    float *previousWavefield = (float*) malloc(nx * ny * nz * sizeof(float));
+    float *nextWavefield = (float*) malloc(nx * ny * nz * sizeof(float));
     float *u = (float*) malloc(nx * ny * nz * sizeof(float));
 
     memset(u, 0, nx * ny * nz * sizeof(float));
-    memset(uAnterior, 0, nx * ny * nz * sizeof(float));
-    memset(uProximo, 0, nx * ny * nz * sizeof(float));
+    memset(previousWavefield, 0, nx * ny * nz * sizeof(float));
+    memset(nextWavefield, 0, nx * ny * nz * sizeof(float));
 
 
     for (int t = 0; t < nt; t++) {
 #       pragma omp parallel for num_threads(thread_count)\
-        default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, uAnterior, uProximo, c, xs, ys, zs, s) private(dEx, dEy, dEz)
+        default(none) shared(nx, ny, nz, nt, dx, dy, dz, dt, u, previousWavefield, nextWavefield, c, xs, ys, zs, s) private(dEx, dEy, dEz)
         for (int idx = 0; idx < (nx - 4) * (ny - 4) * (nz - 4); idx++) {
             int x = 2 + idx / ((ny - 4) * (nz - 4));
             int y = 2 + (idx / (nz - 4)) % (ny - 4);
             int z = 2 + idx % (nz - 4);
 
-            dEx = ((-1.0/12.0)*uAnterior[(x - 2) * ny * nz + y * nz + z] +
-                    (4.0/3.0)*uAnterior[(x - 1) * ny * nz + y * nz + z] -
-                    (5.0/2.0)*uAnterior[x * ny * nz + y * nz + z] +
-                    (4.0/3.0)*uAnterior[(x + 1) * ny * nz + y * nz + z] -
-                    (1.0/12.0)*uAnterior[(x + 2) * ny * nz + y * nz + z]) / (dx * dx);
+            dEx = ((-1.0/12.0)*previousWavefield[(x - 2) * ny * nz + y * nz + z] +
+                    (4.0/3.0)*previousWavefield[(x - 1) * ny * nz + y * nz + z] -
+                    (5.0/2.0)*previousWavefield[x * ny * nz + y * nz + z] +
+                    (4.0/3.0)*previousWavefield[(x + 1) * ny * nz + y * nz + z] -
+                    (1.0/12.0)*previousWavefield[(x + 2) * ny * nz + y * nz + z]) / (dx * dx);
             
-            dEy = ((-1.0/12.0)*uAnterior[x * ny * nz + (y - 2) * nz + z] +
-                    (4.0/3.0)*uAnterior[x * ny * nz + (y - 1) * nz + z] -
-                    (5.0/2.0)*uAnterior[x * ny * nz + y * nz + z] +
-                    (4.0/3.0)*uAnterior[x * ny * nz + (y + 1) * nz + z] -
-                    (1.0/12.0)*uAnterior[x * ny * nz + (y + 2) * nz + z]) / (dy * dy);
+            dEy = ((-1.0/12.0)*previousWavefield[x * ny * nz + (y - 2) * nz + z] +
+                    (4.0/3.0)*previousWavefield[x * ny * nz + (y - 1) * nz + z] -
+                    (5.0/2.0)*previousWavefield[x * ny * nz + y * nz + z] +
+                    (4.0/3.0)*previousWavefield[x * ny * nz + (y + 1) * nz + z] -
+                    (1.0/12.0)*previousWavefield[x * ny * nz + (y + 2) * nz + z]) / (dy * dy);
 
-            dEz = ((-1.0/12.0)*uAnterior[x * ny * nz + y * nz + (z - 2)] +
-                    (4.0/3.0)*uAnterior[x * ny * nz + y * nz + (z - 1)] -
-                    (5.0/2.0)*uAnterior[x * ny * nz + y * nz + z] +
-                    (4.0/3.0)*uAnterior[x * ny * nz + y * nz + (z + 1)] -
-                    (1.0/12.0)*uAnterior[x * ny * nz + y * nz + (z + 2)]) / (dz * dz);
+            dEz = ((-1.0/12.0)*previousWavefield[x * ny * nz + y * nz + (z - 2)] +
+                    (4.0/3.0)*previousWavefield[x * ny * nz + y * nz + (z - 1)] -
+                    (5.0/2.0)*previousWavefield[x * ny * nz + y * nz + z] +
+                    (4.0/3.0)*previousWavefield[x * ny * nz + y * nz + (z + 1)] -
+                    (1.0/12.0)*previousWavefield[x * ny * nz + y * nz + (z + 2)]) / (dz * dz);
 
-            uProximo[x * ny * nz + y * nz + z] = c * c * dt * dt * (dEx + dEy + dEz) - 
-                    uAnterior[x * ny * nz + y * nz + z] + 2 * u[x * ny * nz + y * nz + z];
+            nextWavefield[x * ny * nz + y * nz + z] = c * c * dt * dt * (dEx + dEy + dEz) - 
+                    previousWavefield[x * ny * nz + y * nz + z] + 2 * u[x * ny * nz + y * nz + z];
                     
         }
 
 
-        uProximo[xs * ny * nz + ys * nz + zs] -= c * c * dt * dt * s[t];
+        nextWavefield[xs * ny * nz + ys * nz + zs] -= c * c * dt * dt * s[t];
 
         float *temp = u;
-        u = uProximo;
-        uProximo = uAnterior;
-        uAnterior = temp; 
+        u = nextWavefield;
+        nextWavefield = previousWavefield;
+        previousWavefield = temp; 
     }
     
-    free(uAnterior);
-    free(uProximo);
+    free(previousWavefield);
+    free(nextWavefield);
     free(u);
 }
 
@@ -93,8 +93,8 @@ int main(int argc, char* argv[]) {
 
     start = omp_get_wtime();
 
-    initializeSource(s, f, dt, nt, thread_count);
-    propagateWave(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs, thread_count);
+    generateSource(s, f, dt, nt, thread_count);
+    wavePropagation(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs, thread_count);
 
     finish = omp_get_wtime();
     cout << "Tempo: " << finish - start <<endl ;
