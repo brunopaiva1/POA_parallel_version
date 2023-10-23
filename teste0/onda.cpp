@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void initializeSource(float *s, float f, float dt, int nt) {
+void generateSource(float *s, float f, float dt, int nt) {
     float t;
     float pi = 3.14;
 
@@ -17,7 +17,7 @@ void initializeSource(float *s, float f, float dt, int nt) {
     
 }
 
-void propagateWave(float *s, float c, float dx, float dy, float dz, float dt,
+void wavePropagation(float *s, float c, float dx, float dy, float dz, float dt,
                     int nx, int ny, int nz, int nt, int xs, int ys, int zs) {
     
     float dEx, dEy, dEz;
@@ -86,8 +86,8 @@ int main() {
     float *s = (float *)malloc(nt * sizeof(float));
 
     start_t = clock();
-    initializeSource(s, f, dt, nt);
-    propagateWave(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs);
+    generateSource(s, f, dt, nt);
+    wavePropagation(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs);
     end_t = clock();
 
     free(s);
