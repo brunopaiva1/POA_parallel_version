@@ -9,10 +9,10 @@
 
 echo $SLUM_JOB_NODELIST
 
-cd /scratch/pex1272-ufersa/bruno.silva4/teste_parallel
+cd /scratch/pex1272-ufersa/bruno.silva4/teste
 
 module load gcc/9.3
 
-g++ -g -o teste.exe -fopenmp parallel.cpp
+g++ -g -o onda.exe onda.cpp
 
-./teste.exe 16
+./onda.exe
