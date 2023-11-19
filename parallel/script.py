@@ -25,7 +25,7 @@ def init():
 # ani = animation.FuncAnimation(fig, update, frames=nt, init_func=init, repeat=False, interval = 0)
 def update(t): 
     if t % 50 == 0:
-        filename = f"Propagacao_onda_acustica/parallel/samples/sample_t{t}.bin"
+        filename = f"parallel/samples/sample_t{t}.bin"
 
         data = np.fromfile(filename, dtype=np.float32)
 
@@ -46,6 +46,7 @@ def update(t):
         # Agora, ajuste a forma para a forma desejada
         data = data.reshape(desired_shape)
 
+ani = animation.FuncAnimation(fig, update, frames=nt, init_func=init, repeat=False, interval = 0)
 #plt.colorbar()
 plt.show()
 #ani.save('wave_animation.mp4', writer='ffmpeg', fps=30)
