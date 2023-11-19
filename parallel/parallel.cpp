@@ -81,7 +81,20 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
         u = nextWavefield;
         nextWavefield = previousWavefield;
         previousWavefield = temp;
-           
+        
+         if (t % 50 == 0) {
+            
+            char filename[50];
+            sprintf(filename, "samples/sample_t%d.bin", t); // Cria um nome de arquivo único para cada tempo
+            FILE *file = fopen(filename, "wb");
+            if (file != NULL) {
+                // Escreva os dados de uProximo no arquivo binário
+                fwrite(nextWavefield.data(), sizeof(float), nx * ny * nz, file);
+                fclose(file);
+            } else {
+                printf("Erro ao abrir o arquivo para escrita.\n");
+            }
+        }
 }
 }
 int main(int argc, char* argv[]) {
@@ -89,10 +102,10 @@ int main(int argc, char* argv[]) {
     int xs = 15, ys = 15, zs = 15;
     float dx = 10, dy = 10, dz = 10;
     float dt = 0.001;
-    int nx = 80, ny = 80, nz = 80;
-    int nt = 10000;
+    int nx = 10, ny = 10, nz = 10;
+    int nt = 501;
     float f = 10;
-    float c = 1500.0;
+    float c = 1500;
     int thread_count;
 
     thread_count = strtol(argv[1], NULL, 10);
