@@ -1,7 +1,6 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include <chrono>
 #include <cmath>
 #include <omp.h>
 
@@ -98,7 +97,10 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
 }
 }
 int main(int argc, char* argv[]) {
-    auto start_time = std::chrono::high_resolution_clock::now();
+    double start, end, exetime;
+
+    start = omp_get_wtime();
+
     int xs = 15, ys = 15, zs = 15;
     float dx = 10, dy = 10, dz = 10;
     float dt = 0.001;
@@ -114,9 +116,11 @@ int main(int argc, char* argv[]) {
     generateSource(s, f, dt, nt, thread_count);
     wavePropagation(s, c, dx, dy, dz, dt, nx, ny, nz, nt, xs, ys, zs, thread_count);
 
-    auto end_time = std::chrono::high_resolution_clock::now();
-    double execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-    std::cout << "O tempo de execução é: " << execution_time << " ms" << std::endl;
+    end = omp_get_wtime();
+
+    exetime = end - start;
+
+    std::cout << "Time: " << exetime << " seconds" << std::endl;
 
     return 0;
 }
