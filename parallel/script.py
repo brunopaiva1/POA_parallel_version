@@ -25,7 +25,7 @@ def init():
 # ani = animation.FuncAnimation(fig, update, frames=nt, init_func=init, repeat=False, interval = 0)
 def update(t): 
     if t % 50 == 0:
-        filename = f"parallel/samples/sample_t{t}.bin"
+        filename = f"/home/brunopaiva/POA_parallel_version/parallel/samples/sample_t{t}.bin"
 
         data = np.fromfile(filename, dtype=np.float32)
 
