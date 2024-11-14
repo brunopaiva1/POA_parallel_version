@@ -83,8 +83,8 @@ void wavePropagation(std::vector<float>& s, float c, float dx, float dy, float d
         
          if (t % 50 == 0) {
             
-            char filename[50];
-            sprintf(filename, "samples/sample_t%d.bin", t); // Cria um nome de arquivo único para cada tempo
+            char filename[100];
+            sprintf(filename, "/home/brunopaiva/POA_parallel_version/parallel/samples/sample_t%d.bin", t); // Cria um nome de arquivo único para cada tempo
             FILE *file = fopen(filename, "wb");
             if (file != NULL) {
                 // Escreva os dados de uProximo no arquivo binário
@@ -101,10 +101,10 @@ int main(int argc, char* argv[]) {
 
     start = omp_get_wtime();
 
-    int xs = 15, ys = 15, zs = 15;
+    int xs = 25, ys = 25, zs = 25;
     float dx = 10, dy = 10, dz = 10;
     float dt = 0.001;
-    int nx = 10, ny = 10, nz = 10;
+    int nx = 50, ny = 50, nz = 50;
     int nt = 501;
     float f = 10;
     float c = 1500;
