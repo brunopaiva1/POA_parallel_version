@@ -16,11 +16,11 @@ void generateSource(float* s, float f, float dt, int nt, int thread_count) {
     default(none) shared(s, PI_SQUARE, f, dt, nt) private(t)
     for (int i = 0; i < nt; i++) {
         t = i * dt;
-        s[i] = (1 - PI_SQUARE * f * f * t * t) * exp(-PI_SQUARE * f * f * t * t);
+        s[i] = (1 - 2 * PI_SQUARE * f * f * t * t) * exp(-PI_SQUARE * f * f * t * t);
     }    
 }
 
-float calculateDEx(float* previousWavefield, int x, int y, int z, int ny, int nz, float dx) {
+float calcX(float* previousWavefield, int x, int y, int z, int ny, int nz, float dx) {
     return ((-1.0/12.0)*previousWavefield[(x - 2) * ny * nz + y * nz + z] +
             (4.0/3.0)*previousWavefield[(x - 1) * ny * nz + y * nz + z] -
             (5.0/2.0)*previousWavefield[x * ny * nz + y * nz + z] +
@@ -28,7 +28,7 @@ float calculateDEx(float* previousWavefield, int x, int y, int z, int ny, int nz
             (1.0/12.0)*previousWavefield[(x + 2) * ny * nz + y * nz + z]) / (dx * dx);        
 }
 
-float calculateDEy(float* previousWavefield, int x, int y, int z, int ny, int nz, float dy) {
+float calcY(float* previousWavefield, int x, int y, int z, int ny, int nz, float dy) {
     return ((-1.0/12.0)*previousWavefield[x * ny * nz + (y - 2) * nz + z] +
             (4.0/3.0)*previousWavefield[x * ny * nz + (y - 1) * nz + z] -
             (5.0/2.0)*previousWavefield[x * ny * nz + y * nz + z] +
@@ -36,7 +36,7 @@ float calculateDEy(float* previousWavefield, int x, int y, int z, int ny, int nz
             (1.0/12.0)*previousWavefield[x * ny * nz + (y + 2) * nz + z]) / (dy * dy);
 }
 
-float calculateDEz(float* previousWavefield, int x, int y, int z, int ny, int nz, float dz) {
+float calcZ(float* previousWavefield, int x, int y, int z, int ny, int nz, float dz) {
     return ((-1.0/12.0)*previousWavefield[x * ny * nz + y * nz + (z - 2)] +
             (4.0/3.0)*previousWavefield[x * ny * nz + y * nz + (z - 1)] -
             (5.0/2.0)*previousWavefield[x * ny * nz + y * nz + z] +
@@ -58,9 +58,9 @@ void wavePropagation(float* s, float c, float dx, float dy, float dz, float dt,
         for (int x = 2; x < nx - 2; x++) {
             for (int y = 2; y < ny - 2; y++) {
                 for (int z = 2; z < nz - 2; z++) {
-                    dEx = calculateDEx(previousWavefield, x, y, z, ny, nz, dx);
-                    dEy = calculateDEy(previousWavefield, x, y, z, ny, nz, dy);
-                    dEz = calculateDEz(previousWavefield, x, y, z, ny, nz, dz);
+                    dEx = calcX(previousWavefield, x, y, z, ny, nz, dx);
+                    dEy = calcY(previousWavefield, x, y, z, ny, nz, dy);
+                    dEz = calcZ(previousWavefield, x, y, z, ny, nz, dz);
 
                     nextWavefield[x * ny * nz + y * nz + z] = c * c * dt * dt * (dEx + dEy + dEz) -
                                                              previousWavefield[x * ny * nz + y * nz + z] + 2 * u[x * ny * nz + y * nz + z];
